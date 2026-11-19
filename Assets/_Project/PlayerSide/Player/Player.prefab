@@ -273,7 +273,7 @@ MonoBehaviour:
   hurtFlashStep: 0.08
   hitStop: 0.08
   respawnAfterDeath: 1
-  respawnDelay: 2.5
+  respawnDelay: 5
 --- !u!114 &-6033086409016729536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -323,7 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.KnightAudio
   sounds: {fileID: 11400000, guid: 11916d93843146949ab0ef6337ead502, type: 2}
   pitchJitter: 0.06
-  hardLandingSpeed: 18
+  hardLandingSpeed: 25
   minLandingSpeed: 2
 --- !u!1 &1572780062073389424
 GameObject:

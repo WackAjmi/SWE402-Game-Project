@@ -320,6 +320,7 @@ GameObject:
   - component: {fileID: 5244747855968221405}
   - component: {fileID: 1404068552254790649}
   - component: {fileID: 4723141014812726150}
+  - component: {fileID: 3801962815731256322}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -440,3 +441,15 @@ MonoBehaviour:
     FrequencyGain: 1
     Duration: 1
     m_NoiseOffsets: {x: 0, y: 0, z: 0}
+--- !u!114 &3801962815731256322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9170585759980181488}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a80adfcdcaa7e94e81b7638f8ff9336, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.CameraTargetFinder
