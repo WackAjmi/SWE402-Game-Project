@@ -108,6 +108,8 @@ GameObject:
   - component: {fileID: -6033086409016729536}
   - component: {fileID: 3358950077202495552}
   - component: {fileID: 4741777235695618528}
+  - component: {fileID: 6326607074492785586}
+  - component: {fileID: 6632435834703469240}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -325,6 +327,43 @@ MonoBehaviour:
   pitchJitter: 0.06
   hardLandingSpeed: 25
   minLandingSpeed: 2
+--- !u!114 &6326607074492785586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218834630875312613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b67bd2d98a9604f44a62cbd2f03797ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.DashAfterimages
+  source: {fileID: 6374722595014451731}
+  interval: 0.035
+  fadeTime: 0.25
+  tint: {r: 0.55, g: 0.6, b: 0.85, a: 0.6}
+  poolSize: 10
+  material: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+--- !u!114 &6632435834703469240
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218834630875312613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be4a85d14c7e3b04eaae4b3afe51362f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.NailHitEffects
+  sparkSprite: {fileID: 21300000, guid: b11c22dad1e6438288d6e4d7f5439579, type: 3}
+  material: {fileID: 2100000, guid: 9dfc825aed78fcd4ba02077103263b40, type: 2}
+  sortingLayer: VFX
+  lifetime: 0.12
+  startScale: 0.5
+  endScale: 1
+  poolSize: 6
 --- !u!1 &1572780062073389424
 GameObject:
   m_ObjectHideFlags: 0
