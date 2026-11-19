@@ -438,8 +438,9 @@ namespace Hollow.PlayerSide
 
         void OnSideSlashHit(Hurtbox hurt, DamageInfo info)
         {
-            // Small push back when the nail connects, like in Hollow Knight.
-            if (hurt.Owner != null) recoilEndTime = Time.time + recoilTime;
+            // Small push back when the nail connects, like in Hollow Knight:
+            // on enemies, and on solid pogo surfaces such as the arena gates.
+            if (hurt.Owner != null || hurt.Pogoable) recoilEndTime = Time.time + recoilTime;
         }
 
         void OnDownSlashHit(Hurtbox hurt, DamageInfo info)
