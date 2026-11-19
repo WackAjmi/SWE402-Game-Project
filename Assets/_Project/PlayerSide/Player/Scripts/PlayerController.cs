@@ -73,6 +73,7 @@ namespace Hollow.PlayerSide
         [SerializeField] string slashState = "Slash";
         [SerializeField] string upSlashState = "UpSlash";      // -> Slash
         [SerializeField] string downSlashState = "DownSlash";  // -> Slash
+        [SerializeField] string deathState = "Death";
 
         static readonly Vector2 GroundCheckSize = new Vector2(0.4f, 0.1f);
 
@@ -103,6 +104,10 @@ namespace Hollow.PlayerSide
         float lastDashPressedTime = -99f;
         float attackEndTime, nextAttackTime, hitboxOffTime, recoilEndTime;
 
+        bool dead;
+        int knockbackDir;
+        float knockbackSpeed, knockbackEndTime;
+
         GameObject activeHitbox;
         string currentState;
 
@@ -112,6 +117,48 @@ namespace Hollow.PlayerSide
         public bool IsDashing => dashing;
         /// <summary>True during the dash's invulnerable window. PlayerHealth will read this.</summary>
         public bool IsDashInvulnerable => Time.time < invulnerableUntil;
+        public bool IsDead => dead;
+        public bool InKnockback => Time.time < knockbackEndTime;
+
+        /// <summary>Called by PlayerHealth when the Knight is hit: interrupts everything and pushes him away.</summary>
+        public void ApplyKnockback(int awayDir, float speed, float upSpeed, float duration)
+        {
+            if (dead) return;
+            if (dashing) EndDash();
+            if (activeHitbox != null) EndHitbox();
+            attackEndTime = Time.time;
+            jumping = false;
+            canCutJump = false;
+            doubleJumpRising = false;
+
+            knockbackDir = awayDir;
+            knockbackSpeed = speed;
+            knockbackEndTime = Time.time + duration;
+            SetFacing(-awayDir);   // he faces whatever hit him, as in Hollow Knight
+            rb.linearVelocity = new Vector2(awayDir * speed, upSpeed);
+        }
+
+        /// <summary>Called by PlayerHealth at 0 masks: stops all control and plays Death.</summary>
+        public void Die()
+        {
+            if (dead) return;
+            dead = true;
+            if (dashing) EndDash();
+            if (activeHitbox != null) EndHitbox();
+            jumping = false;
+            rb.linearVelocity = new Vector2(0f, Mathf.Min(rb.linearVelocity.y, 0f));
+            PlayAnim(deathState, restart: true);
+        }
+
+        /// <summary>Brings the Knight back after death (sandbox respawn; the game flow will reload the scene instead).</summary>
+        public void Revive()
+        {
+            dead = false;
+            knockbackEndTime = 0f;
+            rb.linearVelocity = Vector2.zero;
+            currentState = null;
+            PlayAnim(idleState, restart: true);
+        }
 
         void Awake()
         {
@@ -159,6 +206,7 @@ namespace Hollow.PlayerSide
 
         void Update()
         {
+            if (dead) return;
             moveInput = moveAction.ReadValue<Vector2>();
             jumpHeld = jumpAction.IsPressed();
             if (jumpAction.WasPressedThisFrame()) lastJumpPressedTime = Time.time;
@@ -188,6 +236,15 @@ namespace Hollow.PlayerSide
                 doubleJumpAvailable = true;
                 airDashAvailable = true;
                 doubleJumpRising = false;
+            }
+
+            // Dead or knocked back: no control, just physics.
+            if (dead || InKnockback)
+            {
+                v.x = dead ? 0f : knockbackDir * knockbackSpeed;
+                v.y = Mathf.Max(v.y, -maxFallSpeed);
+                rb.linearVelocity = v;
+                return;
             }
 
             float x = Mathf.Abs(moveInput.x) > 0.3f ? Mathf.Sign(moveInput.x) : 0f;
@@ -310,7 +367,7 @@ namespace Hollow.PlayerSide
 
         void TryAttack()
         {
-            if (dashing) return;
+            if (dashing || InKnockback) return;
             if (Time.time - lastAttackPressedTime > attackBuffer) return;
             if (Time.time < nextAttackTime) return;
             lastAttackPressedTime = -99f;
@@ -373,7 +430,7 @@ namespace Hollow.PlayerSide
 
         void UpdateAnimation()
         {
-            if (dashing || IsAttacking) return;
+            if (dead || dashing || IsAttacking) return;
             if (!grounded) PlayAnim(doubleJumpRising ? doubleJumpState : airState);
             else if (Mathf.Abs(moveInput.x) > 0.3f) PlayAnim(runState);
             else PlayAnim(idleState);
