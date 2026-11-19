@@ -6,9 +6,9 @@ namespace Hollow.PlayerSide
 {
     /// <summary>
     /// Hollow Knight-style movement and nail for the Knight.
-    /// Run, variable-height jump with coyote time and jump buffering,
-    /// facing, side/up/down slash with pogo and recoil, and code-driven animation.
-    /// Dash, double jump, health and Focus come in later milestones.
+    /// Run, variable-height jump with coyote time and buffering, double jump,
+    /// dash with brief invulnerability, side/up/down slash with pogo and recoil,
+    /// and code-driven animation. Health and Focus come in later steps.
     /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerController : MonoBehaviour
@@ -38,6 +38,20 @@ namespace Hollow.PlayerSide
         [SerializeField] float coyoteTime = 0.1f;
         [SerializeField] float jumpBuffer = 0.12f;
 
+        [Header("Double jump")]
+        [SerializeField] bool doubleJumpUnlocked = true;
+        [SerializeField] int doubleJumpStepsMax = 8;
+
+        [Header("Dash")]
+        [SerializeField] bool dashUnlocked = true;
+        [SerializeField] float dashSpeed = 20f;
+        [SerializeField] float dashTime = 0.25f;
+        [Tooltip("Measured from the start of a dash.")]
+        [SerializeField] float dashCooldown = 0.6f;
+        [Tooltip("Invulnerable for this long from the start of a dash.")]
+        [SerializeField] float dashInvulnerableTime = 0.15f;
+        [SerializeField] float dashBuffer = 0.1f;
+
         [Header("Nail")]
         [Tooltip("How long the slash animation locks facing.")]
         [SerializeField] float attackDuration = 0.35f;
@@ -50,31 +64,43 @@ namespace Hollow.PlayerSide
         [SerializeField] float recoilSpeed = 6f;
         [SerializeField] float recoilTime = 0.08f;
 
-        [Header("Animator state names")]
+        [Header("Animator state names (missing ones fall back)")]
         [SerializeField] string idleState = "Idle";
         [SerializeField] string runState = "Run";
-        [SerializeField] string airState = "Airborne";      // falls back to Idle until the clip exists
+        [SerializeField] string airState = "Airborne";        // -> Idle
+        [SerializeField] string doubleJumpState = "DoubleJump"; // -> Airborne -> Idle
+        [SerializeField] string dashState = "Dash";            // -> Airborne -> Idle
         [SerializeField] string slashState = "Slash";
-        [SerializeField] string upSlashState = "UpSlash";   // falls back to Slash until the clip exists
-        [SerializeField] string downSlashState = "DownSlash";
+        [SerializeField] string upSlashState = "UpSlash";      // -> Slash
+        [SerializeField] string downSlashState = "DownSlash";  // -> Slash
 
         static readonly Vector2 GroundCheckSize = new Vector2(0.4f, 0.1f);
 
         Rigidbody2D rb;
-        InputAction moveAction, jumpAction, attackAction;
+        InputAction moveAction, jumpAction, attackAction, dashAction;
         Hitbox sideHitbox, downHitbox;
 
         Vector2 moveInput;
         bool jumpHeld;
         int facing = -1;                 // -1 = left (the art's default), +1 = right
         bool grounded;
+
         bool jumping;
         bool canCutJump;
         int jumpSteps;
+        int currentJumpStepsMax;
+        bool doubleJumpAvailable;
+        bool doubleJumpRising;
+
+        bool dashing;
+        int dashDir;
+        bool airDashAvailable;
+        float dashEndTime, nextDashTime, invulnerableUntil;
 
         float lastGroundedTime = -99f;
         float lastJumpPressedTime = -99f;
         float lastAttackPressedTime = -99f;
+        float lastDashPressedTime = -99f;
         float attackEndTime, nextAttackTime, hitboxOffTime, recoilEndTime;
 
         GameObject activeHitbox;
@@ -83,6 +109,9 @@ namespace Hollow.PlayerSide
         public bool Grounded => grounded;
         public int Facing => facing;
         public bool IsAttacking => Time.time < attackEndTime;
+        public bool IsDashing => dashing;
+        /// <summary>True during the dash's invulnerable window. PlayerHealth will read this.</summary>
+        public bool IsDashInvulnerable => Time.time < invulnerableUntil;
 
         void Awake()
         {
@@ -107,6 +136,8 @@ namespace Hollow.PlayerSide
             moveAction = actions.FindAction("Player/Move", true);
             jumpAction = actions.FindAction("Player/Jump", true);
             attackAction = actions.FindAction("Player/Attack", true);
+            dashAction = actions.FindAction("Player/Dash", false);
+            if (dashAction == null) Debug.LogWarning("No 'Dash' action in PlayerControls, so dashing is off.");
 
             foreach (var hb in new[] { slashSide, slashUp, slashDown })
                 if (hb != null) hb.SetActive(false);
@@ -132,14 +163,11 @@ namespace Hollow.PlayerSide
             jumpHeld = jumpAction.IsPressed();
             if (jumpAction.WasPressedThisFrame()) lastJumpPressedTime = Time.time;
             if (attackAction.WasPressedThisFrame()) lastAttackPressedTime = Time.time;
+            if (dashAction != null && dashAction.WasPressedThisFrame()) lastDashPressedTime = Time.time;
 
             TryAttack();
 
-            if (activeHitbox != null && Time.time >= hitboxOffTime)
-            {
-                activeHitbox.SetActive(false);
-                activeHitbox = null;
-            }
+            if (activeHitbox != null && Time.time >= hitboxOffTime) EndHitbox();
 
             UpdateAnimation();
         }
@@ -157,30 +185,58 @@ namespace Hollow.PlayerSide
             {
                 lastGroundedTime = Time.time;
                 canCutJump = false;
+                doubleJumpAvailable = true;
+                airDashAvailable = true;
+                doubleJumpRising = false;
             }
 
-            // Run: Hollow Knight has no acceleration, the Knight is at full speed instantly.
             float x = Mathf.Abs(moveInput.x) > 0.3f ? Mathf.Sign(moveInput.x) : 0f;
-            if (x != 0f && !IsAttacking) SetFacing((int)x);
-            v.x = x * runSpeed;
-            if (Time.time < recoilEndTime) v.x = -facing * recoilSpeed;
 
-            // Start a jump: buffered press + on the ground (or just left it).
+            TryStartDash(x);
+
+            if (dashing)
+            {
+                if (Time.time >= dashEndTime) EndDash();
+                else
+                {
+                    // Straight line at full speed, no gravity. A jump can still cancel a ground dash below.
+                    v = new Vector2(dashDir * dashSpeed, 0f);
+                }
+            }
+
+            if (!dashing)
+            {
+                // Run: Hollow Knight has no acceleration, the Knight is at full speed instantly.
+                if (x != 0f && !IsAttacking) SetFacing((int)x);
+                v.x = x * runSpeed;
+                if (Time.time < recoilEndTime) v.x = -facing * recoilSpeed;
+            }
+
+            // Start a jump: ground jump (with coyote time) first, otherwise the double jump.
             bool jumpBuffered = Time.time - lastJumpPressedTime <= jumpBuffer;
             bool onGroundRecently = Time.time - lastGroundedTime <= coyoteTime;
-            if (!jumping && jumpBuffered && onGroundRecently)
+            if (!jumping && jumpBuffered)
             {
-                jumping = true;
-                canCutJump = true;
-                jumpSteps = 0;
-                lastJumpPressedTime = -99f;
-                lastGroundedTime = -99f;
+                if (onGroundRecently)
+                {
+                    StartJump(jumpStepsMax);
+                    lastGroundedTime = -99f;
+                }
+                else if (doubleJumpUnlocked && doubleJumpAvailable && !dashing)
+                {
+                    StartJump(doubleJumpStepsMax);
+                    doubleJumpAvailable = false;
+                    doubleJumpRising = true;
+                    PlayAnim(doubleJumpState, restart: true);
+                }
             }
+
+            if (jumping && dashing) EndDash();   // jumping out of a ground dash
 
             // Hold phase: constant upward speed for a number of steps.
             if (jumping)
             {
-                if (jumpSteps < jumpStepsMin || (jumpHeld && jumpSteps < jumpStepsMax))
+                if (jumpSteps < jumpStepsMin || (jumpHeld && jumpSteps < currentJumpStepsMax))
                 {
                     v.y = jumpSpeed;
                     jumpSteps++;
@@ -198,14 +254,63 @@ namespace Hollow.PlayerSide
                 canCutJump = false;
             }
 
+            if (v.y <= 0f) doubleJumpRising = false;
+
             v.y = Mathf.Max(v.y, -maxFallSpeed);
             rb.linearVelocity = v;
+        }
+
+        void StartJump(int maxSteps)
+        {
+            jumping = true;
+            canCutJump = true;
+            jumpSteps = 0;
+            currentJumpStepsMax = maxSteps;
+            lastJumpPressedTime = -99f;
+        }
+
+        // ---------- Dash ----------
+
+        void TryStartDash(float inputX)
+        {
+            if (!dashUnlocked || dashAction == null || dashing) return;
+            if (Time.time - lastDashPressedTime > dashBuffer) return;
+            if (Time.time < nextDashTime) return;
+            if (!grounded && !airDashAvailable) return;
+
+            lastDashPressedTime = -99f;
+            if (!grounded) airDashAvailable = false;
+
+            dashDir = inputX != 0f ? (int)inputX : facing;
+            SetFacing(dashDir);
+
+            dashing = true;
+            dashEndTime = Time.time + dashTime;
+            nextDashTime = Time.time + dashCooldown;
+            invulnerableUntil = Time.time + dashInvulnerableTime;
+            rb.gravityScale = 0f;
+
+            // A dash interrupts a swing and a rising jump.
+            if (activeHitbox != null) EndHitbox();
+            attackEndTime = Time.time;
+            jumping = false;
+            canCutJump = false;
+            doubleJumpRising = false;
+
+            PlayAnim(dashState, restart: true);
+        }
+
+        void EndDash()
+        {
+            dashing = false;
+            rb.gravityScale = gravityScale;
         }
 
         // ---------- Nail ----------
 
         void TryAttack()
         {
+            if (dashing) return;
             if (Time.time - lastAttackPressedTime > attackBuffer) return;
             if (Time.time < nextAttackTime) return;
             lastAttackPressedTime = -99f;
@@ -231,6 +336,12 @@ namespace Hollow.PlayerSide
             PlayAnim(state, restart: true);
         }
 
+        void EndHitbox()
+        {
+            activeHitbox.SetActive(false);
+            activeHitbox = null;
+        }
+
         void OnSideSlashHit(Hurtbox hurt, DamageInfo info)
         {
             // Small push back when the nail connects, like in Hollow Knight.
@@ -244,7 +355,9 @@ namespace Hollow.PlayerSide
             v.y = pogoSpeed;
             rb.linearVelocity = v;
             jumping = false;
-            canCutJump = false;   // a pogo is not cut by releasing Jump
+            canCutJump = false;        // a pogo is not cut by releasing Jump
+            doubleJumpAvailable = true; // like Hollow Knight, a pogo restores the double jump and air dash
+            airDashAvailable = true;
         }
 
         // ---------- Facing and animation ----------
@@ -260,8 +373,8 @@ namespace Hollow.PlayerSide
 
         void UpdateAnimation()
         {
-            if (IsAttacking) return;
-            if (!grounded) PlayAnim(airState);
+            if (dashing || IsAttacking) return;
+            if (!grounded) PlayAnim(doubleJumpRising ? doubleJumpState : airState);
             else if (Mathf.Abs(moveInput.x) > 0.3f) PlayAnim(runState);
             else PlayAnim(idleState);
         }
@@ -270,16 +383,26 @@ namespace Hollow.PlayerSide
         {
             if (animator == null || animator.runtimeAnimatorController == null) return;
 
-            if (!animator.HasState(0, Animator.StringToHash(state)))
-            {
-                if (state == airState) state = idleState;
-                else if (state == upSlashState || state == downSlashState) state = slashState;
-                if (!animator.HasState(0, Animator.StringToHash(state))) return;
-            }
+            state = ResolveState(state);
+            if (state == null) return;
 
             if (!restart && currentState == state) return;
             animator.Play(state, 0, 0f);
             currentState = state;
+        }
+
+        /// <summary>Uses the closest existing state, so missing clips don't break anything.</summary>
+        string ResolveState(string state)
+        {
+            for (int i = 0; i < 3 && state != null; i++)
+            {
+                if (animator.HasState(0, Animator.StringToHash(state))) return state;
+                if (state == doubleJumpState || state == dashState) state = airState;
+                else if (state == airState) state = idleState;
+                else if (state == upSlashState || state == downSlashState) state = slashState;
+                else state = null;
+            }
+            return null;
         }
 
         void OnDrawGizmosSelected()
