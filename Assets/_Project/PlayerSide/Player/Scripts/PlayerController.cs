@@ -119,6 +119,10 @@ namespace Hollow.PlayerSide
         public bool IsDashInvulnerable => Time.time < invulnerableUntil;
         public bool IsDead => dead;
         public bool InKnockback => Time.time < knockbackEndTime;
+        /// <summary>While true the Knight can't move, jump, dash or attack (used by the Focus heal).</summary>
+        public bool Rooted { get; set; }
+        /// <summary>True when nothing else is going on: the Focus heal may start.</summary>
+        public bool CanFocus => !dead && grounded && !dashing && !IsAttacking && !InKnockback && !jumping;
 
         /// <summary>Called by PlayerHealth when the Knight is hit: interrupts everything and pushes him away.</summary>
         public void ApplyKnockback(int awayDir, float speed, float upSpeed, float duration)
@@ -247,6 +251,15 @@ namespace Hollow.PlayerSide
                 return;
             }
 
+            // Focusing: standing still.
+            if (Rooted)
+            {
+                v.x = 0f;
+                v.y = Mathf.Max(v.y, -maxFallSpeed);
+                rb.linearVelocity = v;
+                return;
+            }
+
             float x = Mathf.Abs(moveInput.x) > 0.3f ? Mathf.Sign(moveInput.x) : 0f;
 
             TryStartDash(x);
@@ -367,7 +380,7 @@ namespace Hollow.PlayerSide
 
         void TryAttack()
         {
-            if (dashing || InKnockback) return;
+            if (dashing || InKnockback || Rooted) return;
             if (Time.time - lastAttackPressedTime > attackBuffer) return;
             if (Time.time < nextAttackTime) return;
             lastAttackPressedTime = -99f;
@@ -431,7 +444,8 @@ namespace Hollow.PlayerSide
         void UpdateAnimation()
         {
             if (dead || dashing || IsAttacking) return;
-            if (!grounded) PlayAnim(doubleJumpRising ? doubleJumpState : airState);
+            if (Rooted) PlayAnim(idleState);
+            else if (!grounded) PlayAnim(doubleJumpRising ? doubleJumpState : airState);
             else if (Mathf.Abs(moveInput.x) > 0.3f) PlayAnim(runState);
             else PlayAnim(idleState);
         }

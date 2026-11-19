@@ -106,6 +106,7 @@ GameObject:
   - component: {fileID: 1423608701247395567}
   - component: {fileID: -2898957386774318965}
   - component: {fileID: -6033086409016729536}
+  - component: {fileID: 3358950077202495552}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -285,6 +286,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.SpriteFlasher
   target: {fileID: 6374722595014451731}
+--- !u!114 &3358950077202495552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1218834630875312613}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6a7754910e556f4b878560f629046b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.PlayerSoul
+  maxSoul: 99
+  soulPerHit: 11
+  nailHitboxes: []
+  focusCost: 33
+  healAmount: 1
+  focusTime: 1
+  focusColors:
+  - {r: 0.45, g: 1, b: 0.45, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
+  focusFlashStep: 0.1
 --- !u!1 &1572780062073389424
 GameObject:
   m_ObjectHideFlags: 0
