@@ -35,6 +35,9 @@ namespace Hollow.PlayerSide
         public int Soul => soul;
         public int MaxSoul => maxSoul;
 
+        /// <summary>Fired when a Focus heal happens (KnightAudio plays the heal sound).</summary>
+        public event System.Action Focused;
+
         void Awake()
         {
             controller = GetComponent<PlayerController>();
@@ -77,6 +80,7 @@ namespace Hollow.PlayerSide
             health.Heal(healAmount);
             Broadcast();
             if (flasher != null) flasher.Flash(focusColors, flashTime, focusFlashStep);
+            Focused?.Invoke();
             return true;
         }
 

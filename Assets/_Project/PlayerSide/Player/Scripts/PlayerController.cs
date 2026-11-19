@@ -104,6 +104,9 @@ namespace Hollow.PlayerSide
         float lastDashPressedTime = -99f;
         float attackEndTime, nextAttackTime, hitboxOffTime, recoilEndTime;
 
+        bool wasGrounded = true;
+        float peakFallSpeed;
+
         bool dead;
         int knockbackDir;
         float knockbackSpeed, knockbackEndTime;
@@ -119,6 +122,15 @@ namespace Hollow.PlayerSide
         public bool IsDashInvulnerable => Time.time < invulnerableUntil;
         public bool IsDead => dead;
         public bool InKnockback => Time.time < knockbackEndTime;
+        public bool IsRunning => grounded && !dead && !dashing && !InKnockback && !Rooted && Mathf.Abs(moveInput.x) > 0.3f;
+
+        // For sounds and effects (KnightAudio listens to these).
+        public event System.Action Jumped;
+        public event System.Action DoubleJumped;
+        public event System.Action Dashed;
+        public event System.Action Slashed;
+        /// <summary>Fired on touching down, with the fastest fall speed of that airtime.</summary>
+        public event System.Action<float> Landed;
         /// <summary>While true the Knight can't move, jump, dash or attack (used by the Focus heal).</summary>
         public bool Rooted { get; set; }
         /// <summary>True when nothing else is going on: the Focus heal may start.</summary>
@@ -242,6 +254,14 @@ namespace Hollow.PlayerSide
                 doubleJumpRising = false;
             }
 
+            if (!grounded) peakFallSpeed = Mathf.Max(peakFallSpeed, -v.y);
+            else if (!wasGrounded)
+            {
+                Landed?.Invoke(peakFallSpeed);
+                peakFallSpeed = 0f;
+            }
+            wasGrounded = grounded;
+
             // Dead or knocked back: no control, just physics.
             if (dead || InKnockback)
             {
@@ -291,6 +311,7 @@ namespace Hollow.PlayerSide
                 {
                     StartJump(jumpStepsMax);
                     lastGroundedTime = -99f;
+                    Jumped?.Invoke();
                 }
                 else if (doubleJumpUnlocked && doubleJumpAvailable && !dashing)
                 {
@@ -298,6 +319,7 @@ namespace Hollow.PlayerSide
                     doubleJumpAvailable = false;
                     doubleJumpRising = true;
                     PlayAnim(doubleJumpState, restart: true);
+                    DoubleJumped?.Invoke();
                 }
             }
 
@@ -368,6 +390,7 @@ namespace Hollow.PlayerSide
             doubleJumpRising = false;
 
             PlayAnim(dashState, restart: true);
+            Dashed?.Invoke();
         }
 
         void EndDash()
@@ -404,6 +427,7 @@ namespace Hollow.PlayerSide
 
             string state = dir == SlashDir.Up ? upSlashState : dir == SlashDir.Down ? downSlashState : slashState;
             PlayAnim(state, restart: true);
+            Slashed?.Invoke();
         }
 
         void EndHitbox()

@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6849a8af3a5a402da9be865e36c66cd7, type: 3}
+  m_Name: KnightSounds
+  m_EditorClassIdentifier: 
+  volume: 0.8
+  footstepVolume: 0.6
+  footsteps: {fileID: 8300000, guid: 5caca3d8aea54e93ad224e609a42a1cb, type: 3}
+  jump: {fileID: 8300000, guid: 86e42153d5ff4b89b1ce670cf6428cc4, type: 3}
+  doubleJump: {fileID: 8300000, guid: f591cce3624143119fd1ecb1515245a5, type: 3}
+  landSoft: {fileID: 8300000, guid: 2e1df292140f4c5a99eca99774cfecc8, type: 3}
+  landHard: {fileID: 8300000, guid: 151999bc0f164f01a5835ff20ad4bcdd, type: 3}
+  dash: {fileID: 8300000, guid: d1d46508988a46b4ad4b94471e9c3390, type: 3}
+  swings:
+  - {fileID: 8300000, guid: 03c6a3ef4f094d068857c1acbc61419a, type: 3}
+  - {fileID: 8300000, guid: b8758e94ef3a4fa18d78f0f0b8c0e337, type: 3}
+  - {fileID: 8300000, guid: 7daddf5b914e474b89bba627272aa1fc, type: 3}
+  - {fileID: 8300000, guid: 527a41c6452d4552996543a099d018e8, type: 3}
+  - {fileID: 8300000, guid: 4deac258f4b04a6db19f170996921a04, type: 3}
+  nailHit: {fileID: 8300000, guid: c20d8a1fcc6c47208c674bd36eba9af3, type: 3}
+  damage: {fileID: 8300000, guid: 3d22ad66928a4b808811803f25f9811c, type: 3}
+  doubleDamage: {fileID: 8300000, guid: d5ebdfd30081447aa3534e7d9d25d1e1, type: 3}
+  death: {fileID: 8300000, guid: 1dcbec47158d4903996759f51364d236, type: 3}
+  focus: {fileID: 8300000, guid: da71d47a064048e18eff01ca6f0d8573, type: 3}
