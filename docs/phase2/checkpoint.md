@@ -197,7 +197,7 @@ Code: `PlayerController`, `PlayerHealth`, `PlayerSoul`, `SpriteFlasher` (`Assets
 
 ### 6.1 Workflow status
 
-- **Commit history:** 16 descriptive commits on feature branch `a/player-knight`, merged into `main` through pull request **[#PR link]** and tagged `v0.2-phase2`.
+- **Commit history:** 16 descriptive commits on feature branch `a/player-knight`, merged into `main` through pull request **[[#PR link](https://github.com/WackAjmi/SWE402-Game-Project/pull/18)]** and tagged `v0.2-phase2`.
 - **Tracking:** until the checkpoint, work was tracked in commit messages only. At the checkpoint we created:
   - the Project board **The Hallowed Summoner - Production** (Backlog / Ready / In Progress / Review / Done): **[[board link](https://github.com/users/WackAjmi/projects/1)]**
   - one issue per Phase 1 task (T01-T14), with done tasks closed and linked to their commits
