@@ -1,0 +1,21 @@
+{
+    "name": "Game.PlayerSide.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Game.Core",
+        "Game.PlayerSide",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

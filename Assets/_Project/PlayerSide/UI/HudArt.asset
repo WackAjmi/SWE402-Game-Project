@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c00fd2262038433e9b95e346239f2562, type: 3}
+  m_Name: HudArt
+  m_EditorClassIdentifier: 
+  frame: {fileID: 21300000, guid: 798fe2576c0941fdadb78fc76c7a7492, type: 3}
+  maskFull: {fileID: 21300000, guid: 1fc211de3a7945b790a5ca25da856faf, type: 3}
+  maskEmpty: {fileID: 21300000, guid: 85ecebb7fa5040fbbb17b1ef1a604d9d, type: 3}
+  orbCircle: {fileID: 21300000, guid: 635842582b7a4ca48c25d1386d91ea3c, type: 3}
+  soulFill: {fileID: 21300000, guid: 7a0d7b311e7f41d0b9705a964d9c0d07, type: 3}
+  soulTexture: {fileID: 21300000, guid: bc1df6f64872403096a7b3a1bda57405, type: 3}
+  orbFace: {fileID: 21300000, guid: 44bd02628ea04bfaaa8ac4854921554d, type: 3}
+  orbCenter: {x: 105.5, y: 108.8}
+  orbDiameter: 106

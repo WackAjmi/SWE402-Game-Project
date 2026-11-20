@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53a73f04ef6f40b19c5f96b10716f77f, type: 3}
+  m_Name: MenuArt
+  m_EditorClassIdentifier: Game.PlayerSide::Hollow.PlayerSide.GameFlow.MenuArt
+  font: {fileID: 12800000, guid: f152d3abd92fc45498507cd87cf825f1, type: 3}
+  gameTitle: Hallowed Summoner
+  titleBackground: {fileID: 21300000, guid: bc34041cfd8f4090844326a7348297e2, type: 3}
+  titleFleurTop: {fileID: 21300000, guid: 7027739af45d47cf801979def1b50aa6, type: 3}
+  titleFleurBottom: {fileID: 21300000, guid: 6c2e1354e4df4a84abce2961eb632388, type: 3}
+  titleMusic: {fileID: 8300000, guid: 42c0c17e1c5d448d9c9e4e5a17dd1dc7, type: 3}
+  titleMusicVolume: 0.6
+  pointerFrames:
+  - {fileID: 21300000, guid: 310da3fffc134dea88de790cc771ef12, type: 3}
+  - {fileID: 21300000, guid: ab2d3a66c99147728288d26edb662564, type: 3}
+  - {fileID: 21300000, guid: fa3803ca49c44cfba1924956965a5897, type: 3}
+  - {fileID: 21300000, guid: 314846308599416d8cafc972d9418410, type: 3}
+  - {fileID: 21300000, guid: fe9927e9a59948f9916f2d1189ca4f71, type: 3}
+  - {fileID: 21300000, guid: 7824f69895a34a9b82a902b251a868c0, type: 3}
+  - {fileID: 21300000, guid: 012adeac34744760a512167a475deab1, type: 3}
+  - {fileID: 21300000, guid: 86e6337141a144dd88e60187d6aa381b, type: 3}
+  - {fileID: 21300000, guid: 34270a18bbf9467dafe7a67159643a46, type: 3}
+  - {fileID: 21300000, guid: 26f24f636c6d4c479f3c93ef28dabdfa, type: 3}
+  - {fileID: 21300000, guid: bea8117b7b6e4dca9780a3d079faa278, type: 3}
+  menuFleurTop: {fileID: 21300000, guid: 7961c5a7173145d2ab69036be7ff9db1, type: 3}
+  menuFleurBottom: {fileID: 21300000, guid: 1bd401db63634ed6836f119df509aea0, type: 3}
+  divider: {fileID: 21300000, guid: 6898c9b59910459eb917264690389114, type: 3}
+  sliderHandle: {fileID: 21300000, guid: 03b4c1ce6ac54d329513534dc3bed86f, type: 3}
+  deathBackground: {fileID: 21300000, guid: df096fb0634a4fbf91fbaf11f8f229ea, type: 3}
+  selectSound: {fileID: 8300000, guid: 3c4ece8950ab441598c10bd49b236c23, type: 3}
+  confirmSound: {fileID: 8300000, guid: 3c4ece8950ab441598c10bd49b236c23, type: 3}
+  uiVolume: 0.7
