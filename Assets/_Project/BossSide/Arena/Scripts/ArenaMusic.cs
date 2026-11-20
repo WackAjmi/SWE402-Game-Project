@@ -9,7 +9,10 @@ namespace Hollow.BossSide.Arena
     ///   Tunnel:          area theme + ambience fade in.
     ///   Gates slam:      area theme fades out, boss music starts after a short pause.
     ///   Boss dies:       boss music fades, victory sting plays, then the area theme returns.
+    ///   Knight dies:     the music fades out under the death screen.
+    ///   Paused:          everything plays at half volume.
     /// Fades use unscaled time, so hit-stop and slow motion don't stretch them.
+    /// Volumes follow the Music slider (GameSettings.MusicVolume), not the Sound slider.
     /// </summary>
     public class ArenaMusic : MonoBehaviour
     {
@@ -33,10 +36,14 @@ namespace Hollow.BossSide.Arena
         [SerializeField] float bossFadeIn = 0.3f;
         [SerializeField] float bossFadeOut = 1f;
         [SerializeField] float areaReturnFade = 3f;
+        [SerializeField] float deathFade = 2f;
+        [Tooltip("Music volume while the pause menu is open.")]
+        [SerializeField, Range(0f, 1f)] float pausedVolume = 0.5f;
 
         class Channel
         {
             public AudioSource source;
+            public float level;     // 0..1 before the Music setting and pause are applied
             public float target;
             public float speed;
         }
@@ -44,6 +51,7 @@ namespace Hollow.BossSide.Arena
         Channel area, amb, boss;
         AudioSource sting;
         Coroutine sequence;
+        float pauseScale = 1f;
 
         void Awake()
         {
@@ -53,6 +61,8 @@ namespace Hollow.BossSide.Arena
             sting = gameObject.AddComponent<AudioSource>();
             sting.playOnAwake = false;
             sting.spatialBlend = 0f;
+            sting.ignoreListenerVolume = true;
+            sting.ignoreListenerPause = true;
         }
 
         Channel MakeChannel(AudioClip clip)
@@ -63,6 +73,8 @@ namespace Hollow.BossSide.Arena
             s.playOnAwake = false;
             s.spatialBlend = 0f;
             s.volume = 0f;
+            s.ignoreListenerVolume = true;   // music follows the Music slider only
+            s.ignoreListenerPause = true;    // keeps playing (quieter) in the pause menu
             return new Channel { source = s };
         }
 
@@ -70,12 +82,16 @@ namespace Hollow.BossSide.Arena
         {
             GameEvents.EncounterStarted += OnEncounterStarted;
             GameEvents.BossDied += OnBossDied;
+            GameEvents.PlayerDied += OnPlayerDied;
+            GameEvents.GameStateChanged += OnGameStateChanged;
         }
 
         void OnDisable()
         {
             GameEvents.EncounterStarted -= OnEncounterStarted;
             GameEvents.BossDied -= OnBossDied;
+            GameEvents.PlayerDied -= OnPlayerDied;
+            GameEvents.GameStateChanged -= OnGameStateChanged;
         }
 
         void Start()
@@ -86,6 +102,15 @@ namespace Hollow.BossSide.Arena
 
         void OnEncounterStarted() => Run(EncounterSequence());
         void OnBossDied() => Run(VictorySequence());
+
+        void OnPlayerDied()
+        {
+            if (sequence != null) StopCoroutine(sequence);
+            FadeTo(area, 0f, deathFade);
+            FadeTo(boss, 0f, deathFade);
+        }
+
+        void OnGameStateChanged(GameState state) => pauseScale = state == GameState.Paused ? pausedVolume : 1f;
 
         IEnumerator EncounterSequence()
         {
@@ -101,7 +126,7 @@ namespace Hollow.BossSide.Arena
             FadeTo(boss, 0f, bossFadeOut);
             if (victorySting != null)
             {
-                sting.PlayOneShot(victorySting, stingVolume);
+                sting.PlayOneShot(victorySting, stingVolume * GameSettings.MusicVolume);
                 yield return new WaitForSecondsRealtime(victorySting.length * 0.8f);
             }
             area.source.Stop();
@@ -118,8 +143,9 @@ namespace Hollow.BossSide.Arena
         void FadeTo(Channel c, float volume, float seconds)
         {
             if (c.source.clip == null) return;
+            if (!c.source.isPlaying) c.level = 0f;
             c.target = volume;
-            c.speed = seconds <= 0f ? float.MaxValue : Mathf.Max(Mathf.Abs(volume - c.source.volume), 0.01f) / seconds;
+            c.speed = seconds <= 0f ? float.MaxValue : Mathf.Max(Mathf.Abs(volume - c.level), 0.01f) / seconds;
             if (volume > 0f && !c.source.isPlaying) c.source.Play();
         }
 
@@ -134,8 +160,9 @@ namespace Hollow.BossSide.Arena
         {
             var s = c.source;
             if (!s.isPlaying) return;
-            s.volume = Mathf.MoveTowards(s.volume, c.target, c.speed * Time.unscaledDeltaTime);
-            if (s.volume <= 0f && c.target <= 0f) s.Stop();
+            c.level = Mathf.MoveTowards(c.level, c.target, c.speed * Time.unscaledDeltaTime);
+            s.volume = c.level * GameSettings.MusicVolume * pauseScale;
+            if (c.level <= 0f && c.target <= 0f) s.Stop();
         }
     }
 }
