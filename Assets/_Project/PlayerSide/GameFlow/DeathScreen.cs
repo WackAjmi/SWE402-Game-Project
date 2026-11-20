@@ -74,7 +74,7 @@ namespace Hollow.PlayerSide.GameFlow
 
         void OnPlayerDied()
         {
-            if (!IsShowing && group != null) StartCoroutine(Show());
+            if (!IsShowing && !VictoryScreen.IsShowing && group != null) StartCoroutine(Show());
         }
 
         IEnumerator Show()

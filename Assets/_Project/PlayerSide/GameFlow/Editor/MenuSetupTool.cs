@@ -12,7 +12,7 @@ namespace Hollow.PlayerSide.GameFlow.EditorTools
     /// Tools > Hollow Warden > Build Menus
     /// 1. Creates (or fills in) the MenuArt asset from the menu art and sounds.
     /// 2. Title.unity: adds the title screen and an EventSystem, black camera background.
-    /// 3. Arena.unity: adds the pause menu and death screen, and turns off the Knight's sandbox respawn there.
+    /// 3. Arena.unity: adds the pause menu, death screen and victory screen, and turns off the Knight's sandbox respawn there.
     /// 4. Build order: Title first, then Arena.
     /// Running it again replaces only the "Title Menu" and "Game Menus" objects.
     /// </summary>
@@ -121,6 +121,7 @@ namespace Hollow.PlayerSide.GameFlow.EditorTools
             var go = ReplaceRoot("Game Menus");
             AssignArt(go.AddComponent<PauseMenu>(), art);
             AssignArt(go.AddComponent<DeathScreen>(), art);
+            AssignArt(go.AddComponent<VictoryScreen>(), art);
             EnsureEventSystem();
 
             // The death screen handles dying here, so the Knight must not respawn by himself.

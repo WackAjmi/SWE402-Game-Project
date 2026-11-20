@@ -85,7 +85,7 @@ namespace Hollow.PlayerSide.GameFlow
 
         void Update()
         {
-            if (leaving || playerDead || DeathScreen.IsShowing) return;
+            if (leaving || playerDead || DeathScreen.IsShowing || VictoryScreen.IsShowing) return;
 
             if (!IsPaused)
             {
