@@ -26,7 +26,7 @@ Unity 6000.5.11f1, Universal Render Pipeline (2D), Input System, Cinemachine.
 
 ## Boss artwork
 
-The Hallowed Summoner's sprites and its flame projectile were drawn by **Jawaher Aldahayam** ([[link or handle, optional]](https://www.instagram.com/artslunaaa?utm_source=ig_web_button_share_sheet&cnvx=ZDNlZDc0MzIxNw==)) for this project, and are used with her permission.
+The Hallowed Summoner's sprites and its flame projectile were drawn by **Jawaher Aldahayam** ([[Instagram]](https://www.instagram.com/artslunaaa?utm_source=ig_web_button_share_sheet&cnvx=ZDNlZDc0MzIxNw==)) for this project, and are used with her permission.
 
 | Use in the project | Artist |
 | --- | --- |
