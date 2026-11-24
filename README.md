@@ -69,7 +69,7 @@ Editor tools (under **Tools > Hollow Warden**): **Build Deepnest Arena**, **Add 
 
 | Member | Role |
 | --- | --- |
-| Mohammed Alajmi (202065020) | All Phase 2 development: player, arena |
+| Mohammed Alajmi (202065020) | Phase 2 development: player, arena, boss |
 | Ayman Al Johani (202016260) | Phase 2 development: game flow, UI, documentation |
 
 ## Known issues
