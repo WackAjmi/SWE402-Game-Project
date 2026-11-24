@@ -1,7 +1,7 @@
 # The Hallowed Summoner
 
 A 2D boss-encounter vertical slice for SWE402 (Game Development), built in Unity and inspired by *Hollow Knight*.
-The Knight enters a Deepnest arena, the gates slam shut, and the fight ends in victory or defeat, with retry.
+The Knight enters a Deepnest arena, the gates slam shut, and the Hallowed Summoner descends to fight. The fight ends in victory or defeat, with retry.
 
 - Phase 1 proposal: [`docs/phase1/proposal.md`](docs/phase1/proposal.md)
 - Phase 2 checkpoint: [`docs/phase2/checkpoint.md`](docs/phase2/checkpoint.md)
@@ -27,11 +27,23 @@ The Knight enters a Deepnest arena, the gates slam shut, and the fight ends in v
 | Jump (press again in the air to double jump) | Space | A |
 | Dash | Left Shift | Right trigger |
 | Nail | Left mouse button or Enter | X |
-| Focus (heal 1 mask for 33 soul) | F | - |
+| Focus (heal 1 mask for 33 soul) | F | B |
 | Pause | Esc | Start |
+| Back (in menus) | Esc | B or Start |
 | Menus | Arrow keys + Enter, or mouse | Left stick + A |
 
-Down-slash an enemy or a closed gate to pogo off it.
+Down-slash the boss or a closed gate to pogo off it.
+
+## The boss
+
+**The Hallowed Summoner**: 40 hits, two phases, driven by a finite state machine (`BossSide/Boss/Scripts/HallowedSummoner.cs`).
+
+| Attack | Warning | How to avoid |
+| --- | --- | --- |
+| Flame Throw | Floats down while a flame grows in its hands | The flame flies low and straight toward your side: jump over it |
+| Rising Slam | Flies up, raises its arms; glowing marks appear on the floor | Flames erupt upward from every mark. Phase 1: fixed spots with safe gaps. Phase 2: random spots, one under you |
+
+At half health it enters phase 2: every charge-up gets faster.
 
 ## Building (Windows)
 
@@ -46,12 +58,12 @@ Down-slash an enemy or a closed gate to pogo off it.
 | --- | --- |
 | `Assets/_Project/Core` | Shared contracts: `GameEvents`, `Hitbox` / `Hurtbox`, `Services`, `GameSettings` |
 | `Assets/_Project/PlayerSide` | The Knight, camera and feedback, HUD, menus and game flow (`GameFlow/`) |
-| `Assets/_Project/BossSide` | Arena (gates, trigger, music, parallax, builder tool) and the placeholder boss (`Testing/`) |
+| `Assets/_Project/BossSide` | The boss (`Boss/`: state machine, flames, sprites), the arena (`Arena/`: gates, trigger, music, parallax, builder tools) and the old test dummy (`Testing/`) |
 | `Assets/_Project/Scenes` | `Title`, `Arena`, and the two sandbox scenes |
 
 The player side and boss side are separate assembly definitions that never reference each other. They communicate only through `Core`.
 
-Editor tools (under **Tools > Hollow Warden**): **Build Deepnest Arena**, **Add Arena Music**, **Make Gates Tinkable**, **Add Dummy Boss**, **Build Menus**.
+Editor tools (under **Tools > Hollow Warden**): **Build Deepnest Arena**, **Add Arena Music**, **Make Gates Tinkable**, **Add Hallowed Summoner**, **Build Menus**, **Add Dummy Boss** (testing only).
 
 ## Team
 
@@ -62,4 +74,5 @@ Editor tools (under **Tools > Hollow Warden**): **Build Deepnest Arena**, **Add 
 
 ## Known issues
 
-See section 4.3 of the [Phase 2 checkpoint](docs/phase2/checkpoint.md). The boss is currently a placeholder; the full boss is scheduled for Phase 3 (Perhaps sooner).
+- The boss has no sound effects yet (planned for Phase 3).
+- See also section 4.3 of the [Phase 2 checkpoint](docs/phase2/checkpoint.md); the placeholder boss listed there has now been replaced.
