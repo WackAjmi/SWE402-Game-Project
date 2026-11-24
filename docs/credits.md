@@ -4,7 +4,7 @@
 
 ## Art and audio
 
-All sprites, sound effects and music in this project come from **Hollow Knight** by **Team Cherry** (© Team Cherry). They are used here for educational purposes only.
+All sprites, sound effects and music in this project come from **Hollow Knight** by **Team Cherry** (© Team Cherry), except the boss artwork listed below. They are used here for educational purposes only.
 
 | Use in the project | Source in Hollow Knight |
 | --- | --- |
@@ -23,3 +23,12 @@ All game code, editor tools, level layout and the placeholder boss were written 
 ## Tools
 
 Unity 6000.5.11f1, Universal Render Pipeline (2D), Input System, Cinemachine.
+
+## Boss artwork
+
+The Hallowed Summoner's sprites and its flame projectile were drawn by **Jawaher Aldahayam** ([[link or handle, optional]](https://www.instagram.com/artslunaaa?utm_source=ig_web_button_share_sheet&cnvx=ZDNlZDc0MzIxNw==)) for this project, and are used with her permission.
+
+| Use in the project | Artist |
+| --- | --- |
+| The Hallowed Summoner: idle, intro, flame throw, rising slam (31 frames) | Jawaher Aldahayam |
+| Flame projectile | Jawaher Aldahayam |
